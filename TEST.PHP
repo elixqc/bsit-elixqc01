@@ -1,6 +1,7 @@
 <?php
 
-echo "marcus bading";
+echo "marcus bading <br>";
 
+echo "testing github<br>";
 
 ?>
