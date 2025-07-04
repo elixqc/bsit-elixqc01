@@ -1,0 +1,165 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
+USE `mydb` ;
+
+-- -----------------------------------------------------
+-- Table `mydb`.`usersTable`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`usersTable` (
+  `user_id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`user_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`categories`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`categories` (
+  `category_id` INT NOT NULL AUTO_INCREMENT,
+  `category_name` VARCHAR(50) NULL,
+  PRIMARY KEY (`category_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`supplierTable`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`supplierTable` (
+  `supplier_id` INT NOT NULL AUTO_INCREMENT,
+  `supplier_name` VARCHAR(45) NULL,
+  `contact_person` VARCHAR(45) NULL,
+  `phone_number` VARCHAR(45) NULL,
+  `email` VARCHAR(45) NULL,
+  `address` VARCHAR(45) NULL,
+  PRIMARY KEY (`supplier_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`productTable`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`productTable` (
+  `product_id` INT NOT NULL AUTO_INCREMENT,
+  `product_name` VARCHAR(45) NULL,
+  `category_id` INT NOT NULL,
+  `brand` VARCHAR(50) NULL,
+  `size` VARCHAR(50) NULL,
+  `fragrance_type` VARCHAR(45) NULL,
+  `price` DECIMAL(10,2) NOT NULL,
+  `stock_quantity` INT NOT NULL,
+  `supplier_id` INT NOT NULL,
+  PRIMARY KEY (`product_id`),
+  INDEX `fk_productTable_categories_idx` (`category_id` ASC) ,
+  INDEX `fk_productTable_supplierTable1_idx` (`supplier_id` ASC) ,
+  CONSTRAINT `fk_productTable_categories`
+    FOREIGN KEY (`category_id`)
+    REFERENCES `mydb`.`categories` (`category_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_productTable_supplierTable1`
+    FOREIGN KEY (`supplier_id`)
+    REFERENCES `mydb`.`supplierTable` (`supplier_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`customersTable`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`customersTable` (
+  `customer_id` INT NOT NULL AUTO_INCREMENT,
+  `first_name` VARCHAR(45) NOT NULL,
+  `last_name` VARCHAR(45) NOT NULL,
+  `contact_number` VARCHAR(45) NOT NULL,
+  `address` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`customer_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`supply_Records`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`supply_Records` (
+  `record_id` INT NOT NULL AUTO_INCREMENT,
+  `supplier_id` INT NOT NULL,
+  `product_id` INT NOT NULL,
+  `quantity_supplied` INT NULL,
+  `unit_cost` DECIMAL(10,2) NULL,
+  `supply_Date` DATETIME NULL,
+  INDEX `fk_supplierTable_has_productTable_productTable1_idx` (`product_id` ASC) ,
+  INDEX `fk_supplierTable_has_productTable_supplierTable1_idx` (`supplier_id` ASC) ,
+  PRIMARY KEY (`record_id`),
+  CONSTRAINT `fk_supplierTable_has_productTable_supplierTable1`
+    FOREIGN KEY (`supplier_id`)
+    REFERENCES `mydb`.`supplierTable` (`supplier_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_supplierTable_has_productTable_productTable1`
+    FOREIGN KEY (`product_id`)
+    REFERENCES `mydb`.`productTable` (`product_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`orders_table`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`orders_table` (
+  `order_id` INT NOT NULL AUTO_INCREMENT,
+  `customer_id` INT NOT NULL,
+  `order_date` DATETIME NULL,
+  `order_status` VARCHAR(20) NULL,
+  PRIMARY KEY (`order_id`),
+  INDEX `fk_orders_table_customersTable1_idx` (`customer_id` ASC) ,
+  CONSTRAINT `fk_orders_table_customersTable1`
+    FOREIGN KEY (`customer_id`)
+    REFERENCES `mydb`.`customersTable` (`customer_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`order_details_table`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`order_details_table` (
+  `order_detail_id` INT NOT NULL AUTO_INCREMENT,
+  `order_id` INT NOT NULL,
+  `customer_id` INT NOT NULL,
+  `quantity` INT NOT NULL,
+  `unit_price` DECIMAL(10,2) NOT NULL,
+  INDEX `fk_orders_table_has_customersTable_customersTable1_idx` (`customer_id` ASC),
+  INDEX `fk_orders_table_has_customersTable_orders_table1_idx` (`order_id` ASC) ,
+  PRIMARY KEY (`order_detail_id`),
+  CONSTRAINT `fk_orders_table_has_customersTable_orders_table1`
+    FOREIGN KEY (`order_id`)
+    REFERENCES `mydb`.`orders_table` (`order_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_orders_table_has_customersTable_customersTable1`
+    FOREIGN KEY (`customer_id`)
+    REFERENCES `mydb`.`customersTable` (`customer_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
