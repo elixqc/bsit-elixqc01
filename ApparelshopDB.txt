@@ -68,13 +68,13 @@ CREATE TABLE IF NOT EXISTS `mydb`.`productTable` (
   CONSTRAINT `fk_productTable_categories`
     FOREIGN KEY (`category_id`)
     REFERENCES `mydb`.`categories` (`category_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_productTable_supplierTable1`
     FOREIGN KEY (`supplier_id`)
     REFERENCES `mydb`.`supplierTable` (`supplier_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -107,13 +107,13 @@ CREATE TABLE IF NOT EXISTS `mydb`.`supply_Records` (
   CONSTRAINT `fk_supplierTable_has_productTable_supplierTable1`
     FOREIGN KEY (`supplier_id`)
     REFERENCES `mydb`.`supplierTable` (`supplier_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_supplierTable_has_productTable_productTable1`
     FOREIGN KEY (`product_id`)
     REFERENCES `mydb`.`productTable` (`product_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -130,8 +130,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`orders_table` (
   CONSTRAINT `fk_orders_table_customersTable1`
     FOREIGN KEY (`customer_id`)
     REFERENCES `mydb`.`customersTable` (`customer_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -150,13 +150,13 @@ CREATE TABLE IF NOT EXISTS `mydb`.`order_details_table` (
   CONSTRAINT `fk_orders_table_has_customersTable_orders_table1`
     FOREIGN KEY (`order_id`)
     REFERENCES `mydb`.`orders_table` (`order_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_orders_table_has_customersTable_customersTable1`
     FOREIGN KEY (`customer_id`)
     REFERENCES `mydb`.`customersTable` (`customer_id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
