@@ -11,13 +11,13 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+CREATE SCHEMA IF NOT EXISTS `apparelshopDB` DEFAULT CHARACTER SET utf8 ;
+USE `apparelshopDB` ;
 
 -- -----------------------------------------------------
 -- Table `mydb`.`usersTable`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`usersTable` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`usersTable` (
   `user_id` INT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(50) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
@@ -28,7 +28,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`categories`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`categories` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`categories` (
   `category_id` INT NOT NULL AUTO_INCREMENT,
   `category_name` VARCHAR(50) NULL,
   PRIMARY KEY (`category_id`))
@@ -38,7 +38,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`supplierTable`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`supplierTable` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`supplierTable` (
   `supplier_id` INT NOT NULL AUTO_INCREMENT,
   `supplier_name` VARCHAR(45) NULL,
   `contact_person` VARCHAR(45) NULL,
@@ -52,7 +52,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`productTable`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`productTable` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`productTable` (
   `product_id` INT NOT NULL AUTO_INCREMENT,
   `product_name` VARCHAR(45) NULL,
   `category_id` INT NOT NULL,
@@ -67,12 +67,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`productTable` (
   INDEX `fk_productTable_supplierTable1_idx` (`supplier_id` ASC) ,
   CONSTRAINT `fk_productTable_categories`
     FOREIGN KEY (`category_id`)
-    REFERENCES `mydb`.`categories` (`category_id`)
+    REFERENCES `apparelshopDB`.`categories` (`category_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_productTable_supplierTable1`
     FOREIGN KEY (`supplier_id`)
-    REFERENCES `mydb`.`supplierTable` (`supplier_id`)
+    REFERENCES `apparelshopDB`.`supplierTable` (`supplier_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
@@ -81,7 +81,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`customersTable`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`customersTable` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`customersTable` (
   `customer_id` INT NOT NULL AUTO_INCREMENT,
   `first_name` VARCHAR(45) NOT NULL,
   `last_name` VARCHAR(45) NOT NULL,
@@ -94,7 +94,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`supply_Records`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`supply_Records` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`supply_Records` (
   `record_id` INT NOT NULL AUTO_INCREMENT,
   `supplier_id` INT NOT NULL,
   `product_id` INT NOT NULL,
@@ -106,12 +106,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`supply_Records` (
   PRIMARY KEY (`record_id`),
   CONSTRAINT `fk_supplierTable_has_productTable_supplierTable1`
     FOREIGN KEY (`supplier_id`)
-    REFERENCES `mydb`.`supplierTable` (`supplier_id`)
+    REFERENCES `apparelshopDB`.`supplierTable` (`supplier_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_supplierTable_has_productTable_productTable1`
     FOREIGN KEY (`product_id`)
-    REFERENCES `mydb`.`productTable` (`product_id`)
+    REFERENCES `apparelshopDB`.`productTable` (`product_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
@@ -120,7 +120,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`orders_table`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`orders_table` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`orders_table` (
   `order_id` INT NOT NULL AUTO_INCREMENT,
   `customer_id` INT NOT NULL,
   `order_date` DATETIME NULL,
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`orders_table` (
   INDEX `fk_orders_table_customersTable1_idx` (`customer_id` ASC) ,
   CONSTRAINT `fk_orders_table_customersTable1`
     FOREIGN KEY (`customer_id`)
-    REFERENCES `mydb`.`customersTable` (`customer_id`)
+    REFERENCES `apparelshopDB`.`customersTable` (`customer_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
@@ -138,7 +138,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`order_details_table`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`order_details_table` (
+CREATE TABLE IF NOT EXISTS `apparelshopDB`.`order_details_table` (
   `order_detail_id` INT NOT NULL AUTO_INCREMENT,
   `order_id` INT NOT NULL,
   `customer_id` INT NOT NULL,
@@ -149,12 +149,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`order_details_table` (
   PRIMARY KEY (`order_detail_id`),
   CONSTRAINT `fk_orders_table_has_customersTable_orders_table1`
     FOREIGN KEY (`order_id`)
-    REFERENCES `mydb`.`orders_table` (`order_id`)
+    REFERENCES `apparelshopDB`.`orders_table` (`order_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_orders_table_has_customersTable_customersTable1`
     FOREIGN KEY (`customer_id`)
-    REFERENCES `mydb`.`customersTable` (`customer_id`)
+    REFERENCES `apparelshopDB`.`customersTable` (`customer_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
