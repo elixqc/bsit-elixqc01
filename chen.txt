@@ -1,0 +1,349 @@
+Imports System.Data.SqlClient
+Imports System.Xml
+
+Public Class Form1
+    Dim connectionString As String = "Server=localhost\SQLEXPRESS;Database=gr10sw1;Trusted_Connection=True;"
+
+
+    Dim adapter As SqlDataAdapter
+    Dim ds As New DataSet()
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        LoadData()
+
+    End Sub
+
+    Sub LoadData()
+        Try
+            ds.Clear()
+            Using connection As New SqlConnection(connectionString)
+                adapter = New SqlDataAdapter("SELECT * FROM Employees", connection)
+                adapter.Fill(ds, "Employees")
+                dgvEmployees.DataSource = ds.Tables("Employees")
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error loading data: " & ex.Message)
+        End Try
+    End Sub
+
+    Private Sub btnInsert_Click(sender As Object, e As EventArgs) Handles btnInsert.Click
+        If ValidateInputs() Then
+            Try
+                Dim query As String = "INSERT INTO Employees(empName, department, salary) VALUES(@name, @dept, @salary)"
+                Using connection As New SqlConnection(connectionString)
+                    Using cmd As New SqlCommand(query, connection)
+                        cmd.Parameters.AddWithValue("@name", txtName.Text)
+                        cmd.Parameters.AddWithValue("@dept", txtDepartment.Text)
+                        cmd.Parameters.AddWithValue("@salary", CInt(txtSalary.Text))
+                        connection.Open()
+                        cmd.ExecuteNonQuery()
+                    End Using
+                End Using
+                LoadData()
+                ClearTextBoxes()
+            Catch ex As Exception
+                MessageBox.Show("Error inserting data: " & ex.Message)
+            End Try
+        End If
+    End Sub
+
+    Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+        If ValidateInputs() AndAlso ValidateID() Then
+            Try
+                Dim query As String = "UPDATE Employees SET empName=@name, department=@dept, salary=@salary WHERE empID=@id"
+                Using connection As New SqlConnection(connectionString)
+                    Using cmd As New SqlCommand(query, connection)
+                        cmd.Parameters.AddWithValue("@name", txtName.Text)
+                        cmd.Parameters.AddWithValue("@dept", txtDepartment.Text)
+                        cmd.Parameters.AddWithValue("@salary", CInt(txtSalary.Text))
+                        cmd.Parameters.AddWithValue("@id", CInt(txtID.Text))
+                        connection.Open()
+                        cmd.ExecuteNonQuery()
+                    End Using
+                End Using
+                LoadData()
+                ClearTextBoxes()
+            Catch ex As Exception
+                MessageBox.Show("Error updating data: " & ex.Message)
+            End Try
+        End If
+    End Sub
+
+    Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        If ValidateID() Then
+            Try
+                Dim query As String = "DELETE FROM Employees WHERE empID=@id"
+                Using connection As New SqlConnection(connectionString)
+                    Using cmd As New SqlCommand(query, connection)
+                        cmd.Parameters.AddWithValue("@id", CInt(txtID.Text))
+                        connection.Open()
+                        cmd.ExecuteNonQuery()
+                    End Using
+                End Using
+                LoadData()
+                ClearTextBoxes()
+            Catch ex As Exception
+                MessageBox.Show("Error deleting data: " & ex.Message)
+            End Try
+        End If
+    End Sub
+
+    Private Sub btnSaveXML_Click(sender As Object, e As EventArgs) Handles btnSaveXML.Click
+        Try
+            ds.Tables("Employees").WriteXml("employees.xml")
+            MessageBox.Show("File saved to: " & IO.Directory.GetCurrentDirectory())
+        Catch ex As Exception
+            MessageBox.Show("Error saving to XML: " & ex.Message)
+        End Try
+    End Sub
+
+    Private Sub btnLoadXML_Click(sender As Object, e As EventArgs) Handles btnLoadXML.Click
+        Try
+            If IO.File.Exists("employees.xml") Then
+                Dim xmlDS As New DataSet()
+                xmlDS.ReadXml("employees.xml")
+                dgvEmployees.DataSource = xmlDS.Tables(0)
+            Else
+                MessageBox.Show("XML file not found.")
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Error loading from XML: " & ex.Message)
+        End Try
+    End Sub
+
+    Private Sub dgvEmployees_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvEmployees.CellClick
+        If e.RowIndex >= 0 Then
+            Dim row As DataGridViewRow = dgvEmployees.Rows(e.RowIndex)
+            txtID.Text = row.Cells("empID").Value.ToString()
+            txtName.Text = row.Cells("empName").Value.ToString()
+            txtDepartment.Text = row.Cells("department").Value.ToString()
+            txtSalary.Text = row.Cells("salary").Value.ToString()
+        End If
+    End Sub
+
+    Private Sub ClearTextBoxes()
+        txtID.Clear()
+        txtName.Clear()
+        txtDepartment.Clear()
+        txtSalary.Clear()
+    End Sub
+
+    Private Function ValidateInputs() As Boolean
+        If String.IsNullOrWhiteSpace(txtName.Text) OrElse String.IsNullOrWhiteSpace(txtDepartment.Text) OrElse String.IsNullOrWhiteSpace(txtSalary.Text) Then
+            MessageBox.Show("Please fill in all fields.")
+            Return False
+        End If
+
+        If Not Integer.TryParse(txtSalary.Text, Nothing) Then
+            MessageBox.Show("Salary must be a valid number.")
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    Private Function ValidateID() As Boolean
+        If String.IsNullOrWhiteSpace(txtID.Text) OrElse Not Integer.TryParse(txtID.Text, Nothing) Then
+            MessageBox.Show("Please enter a valid ID.")
+            Return False
+        End If
+
+        Return True
+    End Function
+End Class
+-------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY IDENTITY(1,1),
+    CustomerName VARCHAR(50) NOT NULL,
+    Email VARCHAR(50) NOT NULL,
+    Address VARCHAR(50) NOT NULL,
+    ContactNumber VARCHAR(50)
+);
+
+
+Imports System.Data.Linq
+Imports System.Data.Linq.Mapping
+
+Public Class Form1
+
+    Public Class MyDataContext
+        Inherits DataContext
+
+        Public Sub New(conn As String)
+            MyBase.New(conn)
+        End Sub
+
+        Public Customers As Table(Of Customer)
+    End Class
+
+    <Table(Name:="Customers")>
+    Public Class Customer
+        <Column(IsPrimaryKey:=True, IsDbGenerated:=True)>
+        Public Property CustomerID As Integer
+        <Column>
+        Public Property CustomerName As String
+        <Column>
+        Public Property Email As String
+        <Column>
+        Public Property Address_ As String
+        <Column>
+        Public Property PhoneNumber As String
+    End Class
+
+    Private context As MyDataContext
+
+    Private Sub LoadCustomers()
+        Try
+            Dim data = From c In context.Customers
+                       Select c
+            dgvCustomers.DataSource = data.ToList()
+        Catch ex As Exception
+            MessageBox.Show("Failed to load customers: " & ex.Message)
+        End Try
+    End Sub
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Dim connStr As String = "Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Admin\Desktop\COLLEGE\Virtual Basic\customerManagement\CustomerTempDB.mdf;Integrated Security=True"
+        context = New MyDataContext(connStr)
+        LoadCustomers()
+    End Sub
+
+    Private Sub btnAddCustomer_Click(sender As Object, e As EventArgs) Handles btnAddCustomer.Click
+        Dim newCust As New Customer With {
+            .CustomerName = txtCustomerName.Text,
+            .Email = txtEmail.Text,
+            .Address_ = txtAddress.Text,
+            .PhoneNumber = txtPhone.Text
+        }
+        context.Customers.InsertOnSubmit(newCust)
+        context.SubmitChanges()
+        LoadCustomers()
+    End Sub
+
+    Private Sub btnUpdateCustomer_Click(sender As Object, e As EventArgs) Handles btnUpdateCustomer.Click
+        Dim id As Integer = Integer.Parse(txtCustomerID.Text)
+        Dim cust = context.Customers.FirstOrDefault(Function(c) c.CustomerID = id)
+
+        cust.CustomerName = txtCustomerName.Text
+        cust.Email = txtEmail.Text
+        cust.Address_ = txtAddress.Text
+        cust.PhoneNumber = txtPhone.Text
+
+        context.SubmitChanges()
+        LoadCustomers()
+    End Sub
+
+    Private Sub btnDeleteCustomer_Click(sender As Object, e As EventArgs) Handles btnDeleteCustomer.Click
+        Dim id As Integer = Integer.Parse(txtCustomerID.Text)
+        Dim cust = context.Customers.FirstOrDefault(Function(c) c.CustomerID = id)
+
+        context.Customers.DeleteOnSubmit(cust)
+        context.SubmitChanges()
+        LoadCustomers()
+    End Sub
+End Class
+
+----------------------------------------------------------------------------------------------------
+
+In SQL
+CREATE DATABASE store;
+USE store;
+GO
+CREATE TABLE Customers (
+CustomerID INT PRIMARY KEY IDENTITY(1,1),
+Cus_Name NVARCHAR(100),
+City NVARCHAR(50)
+);
+CREATE TABLE Orders (
+OrderID INT PRIMARY KEY IDENTITY(1,1),
+CustomerID INT FOREIGN KEY REFERENCES Customers(CustomerID),
+OrderDate DATETIME,
+Amount DECIMAL(10, 2)
+);
+
+In VB.NET
+===INSERT DATA===
+INSERT INTO Customers (Cus_Name, City) VALUES
+('John Smith', 'New York'),
+('Jane Doe', 'Chicago'),
+('Bob Wilson', 'London'),
+('Sarah Davis', 'Toronto'),
+('Mike Johnson', 'Seattle'),
+('Emily Brown', 'Boston'),
+('David Lee', 'Miami'),
+('Lisa Garcia', 'Denver'),
+('Tom Anderson', 'Phoenix'),
+('Amy Taylor', 'Atlanta');
+
+-- Insert 10 Orders
+INSERT INTO Orders (CustomerID, OrderDate, Amount) VALUES
+(1, '2024-01-15', 150.50),
+(2, '2024-01-16', 225.75),
+(3, '2024-01-17', 89.99),
+(4, '2024-01-18', 345.00),
+(5, '2024-01-19', 199.25),
+(6, '2024-01-20', 78.50),
+(7, '2024-01-21', 456.75),
+(8, '2024-01-22', 123.00),
+(9, '2024-01-23', 287.50),
+(10, '2024-01-24', 167.25);
+
+=== SEARCH BUTTON ===
+Private Sub ButtonSearch_Click(sender As Object, e As EventArgs) Handles ButtonSearch.Click
+Dim db As New DataClasses1DataContext()
+Dim customers = From c In db.Customers
+Where c.City = TextBoxCity.Text
+Select c.Cus_Name
+For Each customer In customers
+ListBox1.Items.Add(customer)
+Next
+End Sub
+
+=== JOIN BUTTON ===
+Private Sub ButtonJoin_Click(sender As Object, e As EventArgs) Handles ButtonJoin.Click
+Dim db As New DataClasses1DataContext()
+Dim joinQuery = From cust In db.Customers
+Join ord In db.Orders On cust.CustomerID Equals ord.CustomerID
+Select cust.Cus_Name, ord.OrderID, ord.Amount
+For Each record In joinQuery
+ListBox1.Items.Add(record)
+Next
+End Sub
+
+=== UPDATE BUTTON ===
+Private Sub ButtonUpdate_Click(sender As Object, e As EventArgs) Handles ButtonUpdate.Click
+Dim db As New DataClasses1DataContext()
+Dim customer = (From c In db.Customers
+Where c.CustomerID = Integer.Parse(TextBoxId.Text)
+Select c).FirstOrDefault()
+If customer IsNot Nothing Then
+customer.City = "London"
+db.SubmitChanges()
+MsgBox("City updated to London.")
+Else
+MsgBox("Customer not found.")
+End If
+For Each customer In db.Customers
+ListBox1.Items.Add(customer)
+Next
+End Sub
+
+=== DELETE BUTTON ===
+Private Sub ButtonDelete_Click(sender As Object, e As EventArgs) Handles ButtonDelete.Click
+Dim db As New DataClasses1DataContext()
+Dim customer = (From c In db.Customers
+Where c.CustomerID = Integer.Parse(TextBoxId.Text)
+Select c).FirstOrDefault()
+If customer IsNot Nothing Then
+db.Customers.DeleteOnSubmit(customer)
+db.SubmitChanges()
+MsgBox("Customer deleted.")
+Else
+MsgBox("Customer not found.")
+End If
+ListBox1.Items.Clear()
+For Each cust In db.Customers
+ListBox1.Items.Add(cust.Cus_Name)
+Next
+End Sub
