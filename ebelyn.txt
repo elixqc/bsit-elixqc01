@@ -1,0 +1,453 @@
+1
+Instructions:
+ Step 1: Create a Console App
+Open Visual Studio
+Create a Console App (.NET Framework) project
+Step 2: Create Your Classes
+Base Class:
+Create a Person class with:
+Id (Integer)
+Name (String)
+Derived Classes:
+Create a Student class that inherits Person, with:
+Grade (String)
+Create a Teacher class that inherits Person, with:
+Subject (String)
+
+Step 3: Create the DbContext
+Create a class SchoolDbContext that inherits DbContext
+Add this property:
+Public Property People As DbSet(Of Person)
+
+Step 4: Insert the Data
+In your Main() method:
+Add 6 students with different names and grades
+Add 4 teachers with different names and subjects
+Save the records using SaveChanges()
+
+Step 5: Display the Data
+Use For Each to:
+Loop through db.People.ToList()
+Use TypeOf and CType() to check if the person is a Student or Teacher
+Display their name and grade/subject
+For Each person In db.People.ToList()
+                If TypeOf person Is Student Then
+                    Dim s = CType(person, Student)
+                    Console.WriteLine($"Student: {s.Name}, Grade: {s.Grade}")
+                ElseIf TypeOf person Is Teacher Then
+                    Dim t = CType(person, Teacher)
+                    Console.WriteLine($"Teacher: {t.Name}, Subject: {t.Subject}")
+                End If
+            Next
+
+Full code
+
+Imports System
+Imports System.Data.Entity
+
+' Base class
+Public Class Person
+    Public Property Id As Integer
+    Public Property Name As String
+End Class
+
+' Derived class: Student
+Public Class Student
+    Inherits Person
+    Public Property Grade As String
+End Class
+
+' Derived class: Teacher
+Public Class Teacher
+    Inherits Person
+    Public Property Subject As String
+End Class
+
+' Entity Framework context
+Public Class SchoolDbContext
+    Inherits DbContext
+
+    Public Property People As DbSet(Of Person)
+End Class
+
+Module Module1
+    Sub Main()
+
+        Database.SetInitializer(New DropCreateDatabaseIfModelChanges(Of SchoolDbContext)())
+
+        Using db As New SchoolDbContext()
+
+            db.People.Add(New Student With {.Name = "David", .Grade = "10"})
+            db.People.Add(New Student With {.Name = "Ella", .Grade = "11"})
+            db.People.Add(New Student With {.Name = "Faye", .Grade = "12"})
+            db.People.Add(New Student With {.Name = "Gino", .Grade = "10"})
+            db.People.Add(New Student With {.Name = "Mia", .Grade = "9"})
+            db.People.Add(New Student With {.Name = "Lance", .Grade = "11"})
+
+            db.People.Add(New Teacher With {.Name = "Sir Leo", .Subject = "Math"})
+            db.People.Add(New Teacher With {.Name = "Ma'am Joy", .Subject = "Science"})
+            db.People.Add(New Teacher With {.Name = "Sir Carlo", .Subject = "History"})
+            db.People.Add(New Teacher With {.Name = "Ma'am Tess", .Subject = "English"})
+
+            db.SaveChanges()
+            Console.WriteLine("Data saved." & vbCrLf)
+
+            Console.WriteLine("People List:")
+            For Each person In db.People.ToList()
+                If TypeOf person Is Student Then
+                    Dim s = CType(person, Student)
+                    Console.WriteLine($"Student: {s.Name}, Grade: {s.Grade}")
+                ElseIf TypeOf person Is Teacher Then
+                    Dim t = CType(person, Teacher)
+                    Console.WriteLine($"Teacher: {t.Name}, Subject: {t.Subject}")
+                End If
+            Next
+
+        End Using
+
+        Console.WriteLine(vbCrLf & "Press any key to exit.")
+        Console.ReadLine()
+    End Sub
+End Module
+================================================================================
+2
+Step 1: Create the Customer Class
+Add a new class file named Customer.
+Define the following properties in the class:
+Customer ID (automatically generated)
+Name
+Email
+Contact Number
+Address
+ Step 2: Create the AppDbContext Class
+Add another class file named AppDbContext.
+Make this class inherit from Entity Framework’s DbContext class.
+Add a property to manage the Customers table.
+ Step 3: Add 10 Customer Records
+In the Main method, define and add ten customer records to the database.
+Each customer must have a name, email, contact number, and address.
+Use any sample names and details, but make sure two specific customers are:
+One named Maria
+One named Juan
+Save the records to the database after adding them.
+ Step 4: Update Customer Information
+Locate the customer record for Maria.
+Update her email to a new value (e.g., a Gmail address).
+Also update her contact number to a different one.
+Save the changes to the database.
+Step 5: Delete a Customer
+Find the customer named Juan in the list.
+Remove his record from the database.
+Save the changes to reflect the deletion.
+ Step 6: Display the Remaining Customers
+Use a loop to display all the remaining customers in the database.
+For each customer, print the following details:
+ID
+Name
+Email
+Contact Number
+Address
+FULL CODE
+Imports System
+Imports System.Data.Entity
+
+' Customer class
+Public Class Customer
+    Public Property Id As Integer
+    Public Property Name As String
+    Public Property Email As String
+End Class
+
+' EF DbContext
+Public Class AppDbContext
+    Inherits DbContext
+    Public Property Customers As DbSet(Of Customer)
+End Class
+
+Module Module1
+    Sub Main()
+        ' Auto-create DB if needed
+        Database.SetInitializer(New DropCreateDatabaseIfModelChanges(Of AppDbContext)())
+
+        Using db As New AppDbContext()
+
+            ' Clear old data (optional if rerunning multiple times)
+            db.Customers.RemoveRange(db.Customers)
+            db.SaveChanges()
+
+            ' Add 10 customers
+            Dim customers As New List(Of Customer) From {
+                New Customer With {.Name = "Maria", .Email = "maria@example.com"},
+                New Customer With {.Name = "Juan", .Email = "juan@example.com"},
+                New Customer With {.Name = "Ana", .Email = "ana@example.com"},
+                New Customer With {.Name = "Ben", .Email = "ben@example.com"},
+                New Customer With {.Name = "Chloe", .Email = "chloe@example.com"},
+                New Customer With {.Name = "Dante", .Email = "dante@example.com"},
+                New Customer With {.Name = "Ella", .Email = "ella@example.com"},
+                New Customer With {.Name = "Fred", .Email = "fred@example.com"},
+                New Customer With {.Name = "Grace", .Email = "grace@example.com"},
+                New Customer With {.Name = "Hugo", .Email = "hugo@example.com"}
+            }
+
+            db.Customers.AddRange(customers)
+            db.SaveChanges()
+
+   
+            Dim maria = db.Customers.FirstOrDefault(Function(c) c.Name = "Maria")
+            If maria IsNot Nothing Then
+                maria.Email = "maria.updated@example.com"
+            End If
+
+            ' --- Delete Juan ---
+            Dim juan = db.Customers.FirstOrDefault(Function(c) c.Name = "Juan")
+            If juan IsNot Nothing Then
+                db.Customers.Remove(juan)
+            End If
+
+            db.SaveChanges()
+
+            ' --- Display all remaining customers ---
+            Console.WriteLine("🔹 Customer List:")
+            For Each c In db.Customers.ToList()
+                Console.WriteLine($"ID: {c.Id}, Name: {c.Name}, Email: {c.Email}")
+            Next
+
+        End Using
+
+        Console.WriteLine(vbCrLf & "Press any key to exit.")
+        Console.ReadLine()
+    End Sub
+End Module
+================================================================================
+DatabaseContext.vb
+Imports System
+
+Imports System.Data.Entity
+
+ 
+
+Public Class Townie
+
+        Public Property Id As Integer
+
+        Public Property Name As String
+
+        Public Property Profession As String
+
+End Class
+
+ 
+
+Public Class TownieDbContext
+
+        Inherits DbContext
+
+ 
+
+        Public Property Townies As DbSet(Of Townie)
+
+End Class
+
+
+Form1.vb
+Imports System.Data.Entity
+
+ 
+
+Public Class Form1
+
+        Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+            ' Auto-create DB if needed
+
+            Database.SetInitializer(New DropCreateDatabaseIfModelChanges(Of TownieDbContext)())
+
+ 
+
+            Using db As New TownieDbContext()
+
+ 
+
+                ' Clear old data (optional if rerunning multiple times)
+
+                db.Townies.RemoveRange(db.Townies)
+
+                db.SaveChanges()
+
+ 
+
+                ' Add 15 townies
+
+                Dim townies As New List(Of Townie) From {
+
+                    New Townie With {.Name = "Carol", .Profession = "Mayor"},
+
+                    New Townie With {.Name = "Dess", .Profession = "Student"},
+
+                    New Townie With {.Name = "Kris", .Profession = "Student"},
+
+                    New Townie With {.Name = "Susie", .Profession = "Student"},
+
+                    New Townie With {.Name = "Noelle", .Profession = "Student"},
+
+                    New Townie With {.Name = "Rudy", .Profession = "Unemployed"},
+
+                    New Townie With {.Name = "Berdly", .Profession = "Librarian"},
+
+                    New Townie With {.Name = "Alphys", .Profession = "Teacher"},
+
+                    New Townie With {.Name = "Undyne", .Profession = "Police Chief"},
+
+                    New Townie With {.Name = "Asgore", .Profession = "Florist"},
+
+                    New Townie With {.Name = "Alvin", .Profession = "Priest"},
+
+                    New Townie With {.Name = "Toriel", .Profession = "Teacher"},
+
+                    New Townie With {.Name = "Asriel", .Profession = "Student"},
+
+                    New Townie With {.Name = "Gerson", .Profession = "Writer"},
+
+                    New Townie With {.Name = "Temmie", .Profession = "Temmie"}
+
+                }
+
+ 
+
+                db.Townies.AddRange(townies)
+
+                db.SaveChanges()
+
+ 
+
+                DataGridView1.DataSource = townies
+
+ 
+
+            End Using
+
+        End Sub
+
+ 
+
+        Private Sub Insert_Click(sender As Object, e As EventArgs) Handles Insert.Click
+
+            Dim name As String = TextBox1.Text.Trim()
+
+            Dim profession As String = TextBox2.Text.Trim()
+
+ 
+
+            If (String.IsNullOrEmpty(name) Or String.IsNullOrEmpty(profession)) Then
+
+                MessageBox.Show("Please enter name or profession.")
+
+                Return
+
+            End If
+
+ 
+
+            Using db As New TownieDbContext()
+
+                Dim newTownie As New Townie With {.Name = name, .Profession = profession}
+
+                db.Townies.Add(newTownie)
+
+                db.SaveChanges()
+
+                DataGridView1.DataSource = db.Townies.ToList()
+
+            End Using
+
+        End Sub
+
+ 
+
+        Private Sub Update_Click(sender As Object, e As EventArgs) Handles Update.Click
+
+            If (DataGridView1.CurrentRow Is Nothing) Then
+
+                MessageBox.Show("Please select a villager to update.")
+
+                Return
+
+            End If
+
+ 
+
+            Dim townie As Townie = CType(DataGridView1.CurrentRow.DataBoundItem, Townie)
+
+ 
+
+            Dim name As String = TextBox1.Text.Trim()
+
+            Dim profession As String = TextBox2.Text.Trim()
+
+ 
+
+            If (String.IsNullOrEmpty(name) Or String.IsNullOrEmpty(profession)) Then
+
+                MessageBox.Show("Please enter name or profession.")
+
+                Return
+
+            End If
+
+ 
+
+            Using db As New TownieDbContext()
+
+                Dim updatedTownie = db.Townies.Find(townie.Id)
+
+                If (updatedTownie IsNot Nothing) Then
+
+                    updatedTownie.Name = name
+
+                    updatedTownie.Profession = profession
+
+                    db.SaveChanges()
+
+                End If
+
+                DataGridView1.DataSource = db.Townies.ToList()
+
+            End Using
+
+        End Sub
+
+ 
+
+        Private Sub Delete_Click(sender As Object, e As EventArgs) Handles Delete.Click
+
+            If (DataGridView1.CurrentRow Is Nothing) Then
+
+                MessageBox.Show("Please select a villager to delete.")
+
+                Return
+
+            End If
+
+ 
+
+            Dim townie As Townie = CType(DataGridView1.CurrentRow.DataBoundItem, Townie)
+
+            Using db As New TownieDbContext()
+
+                Dim deletedTownie = db.Townies.Find(townie.Id)
+
+                If (deletedTownie IsNot Nothing) Then
+
+                db.Townies.Remove(deletedTownie)
+
+                    db.SaveChanges()
+
+                End If
+
+                DataGridView1.DataSource = db.Townies.ToList()
+
+            End Using
+
+        End Sub
+
+End Class
